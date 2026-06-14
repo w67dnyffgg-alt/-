@@ -47,6 +47,11 @@ function load(){
 function esc(s){ return String(s ?? "").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[m])); }
 function today(){ return new Date().toISOString().slice(0,10); }
 function nowText(){ return new Date().toLocaleString("ja-JP",{year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"}); }
+function homeDateText(){
+  const date = new Date();
+  const part = n => String(n).padStart(2,"0");
+  return `${date.getFullYear()}.${part(date.getMonth()+1)}.${part(date.getDate())}（${["日","月","火","水","木","金","土"][date.getDay()]}）`;
+}
 
 function switchView(view){
   qsa(".view").forEach(v=>v.classList.toggle("active",v.id===view));
@@ -62,26 +67,45 @@ function renderAll(){
 }
 
 function renderHome(){
-  $("todaySeed").textContent = state.emotions[0]?.text || "感情をひとつ、漫画の種にしよう";
+  const latestEmotion = state.emotions.at(-1);
+  $("todaySeed").textContent = latestEmotion?.text || "感情をひとつ、漫画の種にしよう";
+  $("todayDate").textContent = homeDateText();
   const progress = state.stories.filter(s=>s.status!=="完成").slice(-3).reverse();
-  $("homeProgressList").innerHTML = progress.length ? progress.map(s=>`<div class="item"><p class="item-title">${esc(s.title||"無題")}</p><span class="badge">${esc(s.status)}</span></div>`).join("") : `<div class="mini-empty">進行中の漫画はまだありません</div>`;
+  $("homeProgressList").innerHTML = progress.length ? progress.map((s,i)=>`
+    <article class="home-story-row">
+      <div class="story-thumb thumb-${i%3}" aria-hidden="true">♡</div>
+      <div class="story-row-copy">
+        <p class="item-title">${esc(s.title||"無題")}</p>
+        <p class="item-meta">更新日：${esc(s.createdAt||"")}</p>
+      </div>
+      <span class="badge">${esc(s.status)}</span>
+    </article>`).join("") : `<div class="mini-empty illustrated-empty"><span>▧</span>進行中の漫画はまだありません</div>`;
   const gh = state.gachaHistory.slice(-3).reverse();
-  $("homeGachaList").innerHTML = gh.length ? gh.map(g=>`<div class="item"><p class="item-title">${esc(g.hero)} × ${esc(g.arrow)}</p><p class="item-meta">${esc(g.aftertaste)}</p></div>`).join("") : `<div class="mini-empty">ガチャ履歴はまだありません</div>`;
-  $("homeEmotionStats").innerHTML = getEmotionStats().slice(0,6).map(([k,v])=>`<span class="chip">${esc(k)} ${v}回</span>`).join("") || `<div class="mini-empty">感情が集まると表示されます</div>`;
+  $("homeGachaList").innerHTML = gh.length ? gh.map((g,i)=>`
+    <article class="home-gacha-card gacha-tone-${i%3}">
+      <span class="gacha-sparkle" aria-hidden="true">✦</span>
+      <p class="item-title"><b>${esc(g.hero)}</b><br>×<br><b>${esc(g.arrow)}</b></p>
+      <p class="item-meta">${esc(g.scene)}</p>
+      <time>${esc(g.createdAt||"")}</time>
+    </article>`).join("") : `<div class="mini-empty illustrated-empty"><span>♧</span>ガチャを引くと、ここに種が並びます</div>`;
 }
 
 function renderEmotions(){
-  $("emotionCount").textContent = state.emotions.length;
+  $("emotionCount").textContent = `(${state.emotions.length})`;
   const list = state.emotionFilter==="fav" ? state.emotions.filter(e=>e.favorite) : state.emotions;
   $("emotionList").innerHTML = list.length ? list.slice().reverse().map(e=>`
-    <article class="item ${e.favorite?"fav":""}">
-      <p class="item-title">${e.favorite?"⭐ ":""}${esc(e.text)}</p>
-      <p class="item-meta">${esc(e.createdAtText||"")}</p>
-      <div class="actions">
-        <button onclick="toggleEmotionFav('${e.id}')">${e.favorite?"★解除":"☆お気に入り"}</button>
-        <button onclick="editEmotion('${e.id}')">編集</button>
-        <button class="use" onclick="sendEmotionToManga('${e.id}')">漫画へ</button>
-        <button class="danger" onclick="deleteEmotion('${e.id}')">削除</button>
+    <article class="item emotion-row ${e.favorite?"fav":""}">
+      <div>
+        <p class="item-title">${esc(e.text)}</p>
+        <p class="item-meta">◷ ${esc(e.createdAtText||"")}</p>
+      </div>
+      <div class="emotion-row-actions">
+        <button class="star-action" onclick="toggleEmotionFav('${e.id}')" aria-label="お気に入り">${e.favorite?"★":"☆"}</button>
+        <div class="actions">
+          <button onclick="editEmotion('${e.id}')">編集</button>
+          <button class="use" onclick="sendEmotionToManga('${e.id}')">漫画へ</button>
+          <button class="danger" onclick="deleteEmotion('${e.id}')">削除</button>
+        </div>
       </div>
     </article>`).join("") : `<div class="mini-empty">感情メモはまだありません</div>`;
 }
@@ -91,11 +115,19 @@ window.deleteEmotion = id => { if(confirm("削除しますか？")){ state.emoti
 window.sendEmotionToManga = id => { const e=state.emotions.find(x=>x.id===id); if(e){ $("storyTheme").value=e.text; switchView("manga"); } };
 
 function renderArrows(){
-  $("arrowCount").textContent = state.arrows.length;
+  $("arrowCount").textContent = `(${state.arrows.length})`;
   $("arrowList").innerHTML = state.arrows.length ? state.arrows.slice().reverse().map(a=>`
-    <article class="item">
-      <p class="item-title">${esc(a.hero)} <b>→</b> ${esc(a.target)} <b>→</b> <span class="badge">${esc(a.emotion)}</span></p>
-      <p class="item-meta">会話相手：${esc(a.talker || "なし")} ／ ${esc(a.memo || "")}</p>
+    <article class="item arrow-card">
+      <div class="arrow-route">
+        <div><small>主人公</small><b>${esc(a.hero)}</b></div>
+        <strong>→</strong>
+        <div><small>感情の相手</small><b>${esc(a.target)}</b></div>
+        <span class="arrow-emotion">${esc(a.emotion)}</span>
+      </div>
+      <div class="arrow-note">
+        <p><small>会話相手</small>${esc(a.talker || "なし")}</p>
+        <p><small>メモ</small>${esc(a.memo || "メモはありません")}</p>
+      </div>
       <div class="actions">
         <button class="use" onclick="useArrow('${a.id}')">漫画へ</button>
         <button class="danger" onclick="deleteArrow('${a.id}')">削除</button>
@@ -119,6 +151,19 @@ function renderCustom(){
     </article>`).join("") || `<div class="mini-empty">選択肢がありません</div>`;
 }
 window.deleteCustom = (cat,i) => { state.gachaOptions[cat].splice(i,1); save(); renderAll(); };
+
+function switchSeedTab(tab){
+  qsa("[data-seed-tab]").forEach(btn=>btn.classList.toggle("active",btn.dataset.seedTab===tab));
+  qsa(".seed-panel").forEach(panel=>panel.classList.remove("active"));
+  if(tab==="custom"){
+    $("seedCustomPanel").classList.add("active");
+  }else if(tab==="history"){
+    $("seedHistoryPanel").classList.add("active");
+  }else{
+    $("seedOverviewPanel").classList.add("active");
+    if(tab==="arrows") setTimeout(()=>$("arrowLibrarySection").scrollIntoView({behavior:"smooth",block:"start"}),30);
+  }
+}
 
 function renderGachaSelect(){
   $("gachaEmotionSelect").innerHTML = `<option value="">感情メモを選ぶ（任意）</option>` + state.emotions.slice().reverse().map(e=>`<option value="${e.id}">${esc(e.text)}</option>`).join("");
@@ -155,7 +200,7 @@ function gachaHTML(g){
   </div>`;
 }
 function renderHistory(){
-  $("historyCount").textContent = state.gachaHistory.length;
+  $("historyCount").textContent = `(${state.gachaHistory.length})`;
   $("gachaHistoryList").innerHTML = state.gachaHistory.length ? state.gachaHistory.slice().reverse().map(g=>`
     <article class="history-card">
       <p class="item-meta">${esc(g.createdAtText)} ${g.favorite?"⭐":""}</p>
@@ -263,12 +308,29 @@ function renderAlbum(){
 
 qsa(".nav-btn,.bottom-btn").forEach(b=>b.addEventListener("click",()=>switchView(b.dataset.view)));
 qsa("[data-jump]").forEach(b=>b.addEventListener("click",()=>switchView(b.dataset.jump)));
+qsa("[data-seed-tab]").forEach(btn=>btn.addEventListener("click",()=>switchSeedTab(btn.dataset.seedTab)));
+
+$("openEmotionComposerBtn").addEventListener("click",()=>{
+  $("emotionComposer").classList.toggle("hidden");
+  if(!$("emotionComposer").classList.contains("hidden")) $("emotionInput").focus();
+});
+$("openArrowComposerBtn").addEventListener("click",()=>{
+  $("arrowComposer").classList.toggle("hidden");
+  if(!$("arrowComposer").classList.contains("hidden")) $("arrowHero").focus();
+});
+qsa(".seed-add,.quick-create-btn.emotion").forEach(btn=>btn.addEventListener("click",()=>{
+  switchSeedTab("overview");
+  $("emotionComposer").classList.remove("hidden");
+  setTimeout(()=>$("emotionInput").focus(),30);
+}));
+qsa(".quick-create-btn.gacha").forEach(btn=>btn.addEventListener("click",()=>switchSeedTab("history")));
 
 $("addEmotionBtn").addEventListener("click",()=>{
   const text=$("emotionInput").value.trim();
   if(!text) return alert("感情メモを書いてね。");
   state.emotions.push({id:uid(),text,favorite:false,createdAt:today(),createdAtText:nowText()});
   $("emotionInput").value="";
+  $("emotionComposer").classList.add("hidden");
   save(); renderAll();
 });
 $("showAllEmotionBtn").addEventListener("click",()=>{state.emotionFilter="all";$("showAllEmotionBtn").classList.add("active");$("showFavEmotionBtn").classList.remove("active");renderEmotions();});
@@ -279,6 +341,7 @@ $("addArrowBtn").addEventListener("click",()=>{
   if(!a.hero || !a.target || !a.emotion) return alert("主人公・感情の相手・感情の矢印は入れてね。");
   state.arrows.push(a);
   ["arrowHero","arrowTarget","arrowEmotion","arrowTalker","arrowMemo"].forEach(id=>$(id).value="");
+  $("arrowComposer").classList.add("hidden");
   save(); renderAll();
 });
 

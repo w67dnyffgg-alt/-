@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>心の種帳 v2</title>
-  <link rel="stylesheet" href="style.css?v=3" />
+  <link rel="stylesheet" href="style.css?v=5" />
 </head>
 <body>
   <div class="app-shell">
@@ -60,97 +60,92 @@
 
       <section id="home" class="view active">
         <div class="hero-card">
-          <p class="eyebrow">今日の種</p>
-          <h2 id="todaySeed">感情をひとつ、漫画の種にしよう</h2>
-          <div class="quick-actions">
-            <button class="primary" data-jump="seed">感情メモを追加</button>
-            <button class="secondary" data-jump="seed">ガチャを引く</button>
-            <button class="blue" data-jump="manga">漫画を書く</button>
+          <div class="seed-meta">
+            <p class="eyebrow">今日の種</p>
+            <time id="todayDate"></time>
           </div>
+          <h2 id="todaySeed">感情をひとつ、漫画の種にしよう</h2>
+          <span class="seed-heart" aria-hidden="true">♡</span>
+          <button class="primary seed-add" data-jump="seed">感情メモを追加する ＋</button>
         </div>
 
         <div class="dashboard-grid">
-          <section class="card">
+          <section class="card home-section">
             <div class="card-head">
               <h3>進行中の漫画</h3>
-              <button class="tiny" data-jump="manga">見る</button>
+              <button class="text-link" data-jump="manga">すべて見る 〉</button>
             </div>
             <div id="homeProgressList" class="mini-list"></div>
           </section>
 
-          <section class="card">
+          <section class="card home-section recent-gacha">
             <div class="card-head">
               <h3>最近引いたガチャ</h3>
-              <button class="tiny" data-jump="seed">引く</button>
+              <button class="text-link" data-jump="seed">すべて見る 〉</button>
             </div>
             <div id="homeGachaList" class="mini-list"></div>
           </section>
 
-          <section class="card">
-            <div class="card-head">
-              <h3>感情コレクション</h3>
-              <button class="tiny" data-jump="album">詳細</button>
+          <section class="quick-create">
+            <h3>クイック作成</h3>
+            <div class="quick-create-grid">
+              <button class="quick-create-btn emotion" data-jump="seed"><i>✎</i><span>感情メモ<br>を追加</span></button>
+              <button class="quick-create-btn gacha" data-jump="seed"><i>♧</i><span>ガチャを<br>引く</span></button>
+              <button class="quick-create-btn manga" data-jump="manga"><i>▧</i><span>漫画を<br>書く</span></button>
             </div>
-            <div id="homeEmotionStats" class="chip-cloud"></div>
           </section>
         </div>
       </section>
 
       <section id="seed" class="view">
-        <div class="view-title">
-          <h2>種を作る</h2>
-          <p>感情メモ・感情の矢印・ガチャで、短編漫画の核を作る場所。</p>
-        </div>
+        <nav class="seed-tabs" aria-label="種を作るメニュー">
+          <button class="active" data-seed-tab="overview">感情メモ帳</button>
+          <button data-seed-tab="arrows">矢印ライブラリ</button>
+          <button data-seed-tab="custom">カスタムガチャ</button>
+          <button data-seed-tab="history">ガチャ履歴</button>
+        </nav>
 
-        <div class="two-col">
-          <section class="card">
+        <div id="seedOverviewPanel" class="seed-panel active">
+          <section class="card seed-section">
             <div class="card-head">
-              <h3>感情メモ帳</h3>
-              <span id="emotionCount" class="badge">0</span>
+              <h3>感情メモ帳 <span id="emotionCount" class="count-text">0</span></h3>
+              <button id="openEmotionComposerBtn" class="new-item-btn">＋ 新しく書く</button>
             </div>
-            <div class="input-line">
+            <div id="emotionComposer" class="input-line seed-composer hidden">
               <textarea id="emotionInput" placeholder="例：好きだった時間まで嫌いになりたくない"></textarea>
-              <button id="addEmotionBtn" class="primary">保存</button>
+              <button id="addEmotionBtn" class="primary">保存する</button>
             </div>
             <div class="filter-row">
               <button id="showAllEmotionBtn" class="pill active">すべて</button>
-              <button id="showFavEmotionBtn" class="pill">お気に入り</button>
+              <button id="showFavEmotionBtn" class="pill">☆ お気に入り</button>
+              <button class="pill">タグ⌄</button>
             </div>
             <div id="emotionList" class="list"></div>
           </section>
 
-          <section class="card">
+          <section id="arrowLibrarySection" class="card seed-section arrow-library">
             <div class="card-head">
-              <h3>感情の矢印ライブラリ</h3>
-              <span id="arrowCount" class="badge">0</span>
+              <h3>感情の矢印ライブラリ <span id="arrowCount" class="count-text">0</span></h3>
+              <button id="openArrowComposerBtn" class="new-item-btn">＋ 新しい矢印</button>
             </div>
-            <div class="form-grid">
-              <input id="arrowHero" placeholder="主人公：優しい子" />
-              <input id="arrowTarget" placeholder="感情の相手：好きな人" />
-              <input id="arrowEmotion" placeholder="感情の矢印：許せない" />
-              <input id="arrowTalker" placeholder="会話相手：友達" />
-              <input id="arrowMemo" class="wide" placeholder="メモ：忘れたいのに、忘れられない。" />
+            <div id="arrowComposer" class="seed-composer hidden">
+              <div class="form-grid">
+                <input id="arrowHero" placeholder="主人公：優しい子" />
+                <input id="arrowTarget" placeholder="感情の相手：好きな人" />
+                <input id="arrowEmotion" placeholder="感情の矢印：許せない" />
+                <input id="arrowTalker" placeholder="会話相手：友達" />
+                <input id="arrowMemo" class="wide" placeholder="メモ：忘れたいのに、忘れられない。" />
+              </div>
+              <button id="addArrowBtn" class="primary">矢印を保存する</button>
             </div>
-            <button id="addArrowBtn" class="primary">矢印を保存</button>
             <div id="arrowList" class="list compact"></div>
           </section>
         </div>
 
-        <div class="two-col">
-          <section class="card gacha-card">
+        <div id="seedCustomPanel" class="seed-panel">
+          <section class="card seed-section">
             <div class="card-head">
-              <h3>感情の矢印ガチャ</h3>
-              <span class="badge">ころん♪</span>
-            </div>
-            <p class="hint">選んだ感情メモとカスタム項目から、漫画の種を作ります。</p>
-            <select id="gachaEmotionSelect"></select>
-            <button id="rollGachaBtn" class="big-gacha">種をころん♪</button>
-            <div id="gachaResult" class="result-card hidden"></div>
-          </section>
-
-          <section class="card">
-            <div class="card-head">
-              <h3>カスタムガチャ設定</h3>
+              <h3>カスタムガチャ編集</h3>
               <span class="badge">編集OK</span>
             </div>
             <div class="custom-tabs">
@@ -170,13 +165,25 @@
           </section>
         </div>
 
-        <section class="card">
-          <div class="card-head">
-            <h3>ガチャ履歴</h3>
-            <span id="historyCount" class="badge">0</span>
-          </div>
-          <div id="gachaHistoryList" class="history-grid"></div>
-        </section>
+        <div id="seedHistoryPanel" class="seed-panel">
+          <section class="card gacha-card seed-section">
+            <div class="card-head">
+              <h3>感情の矢印ガチャ</h3>
+              <span class="badge">ころん♪</span>
+            </div>
+            <p class="hint">選んだ感情メモとカスタム項目から、漫画の種を作ります。</p>
+            <select id="gachaEmotionSelect"></select>
+            <button id="rollGachaBtn" class="big-gacha">＋ 新しいガチャを引く</button>
+            <div id="gachaResult" class="result-card hidden"></div>
+          </section>
+
+          <section class="card seed-section">
+            <div class="card-head">
+              <h3>ガチャ履歴 <span id="historyCount" class="count-text">0</span></h3>
+            </div>
+            <div id="gachaHistoryList" class="history-grid"></div>
+          </section>
+        </div>
       </section>
 
       <section id="manga" class="view">
@@ -298,6 +305,6 @@
     <button class="bottom-btn" data-view="album"><i>♡</i><span>アルバム</span></button>
   </nav>
 
-  <script src="script.js?v=3"></script>
+  <script src="script.js?v=5"></script>
 </body>
 </html>
