@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>心の種帳 v2</title>
+  <link rel="stylesheet" href="style.css?v=3" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="side">
+      <div class="brand">
+        <div class="brand-flower" aria-hidden="true">✿</div>
+        <h1>心の種帳 <span>v2</span></h1>
+        <p>〜 感情の矢印ノート 〜</p>
+      </div>
+
+      <p class="brand-copy">感情の種を見つけて、<br>4ページ漫画の物語に育てるアプリ</p>
+
+      <div class="side-panel">
+        <h2>4つのメイン画面</h2>
+        <nav class="nav">
+          <button class="nav-btn active" data-view="home"><i>⌂</i><span><b>ホーム</b><small>今日の気持ちと進み具合</small></span></button>
+          <button class="nav-btn" data-view="seed"><i>♧</i><span><b>種を作る</b><small>感情メモとガチャ</small></span></button>
+          <button class="nav-btn" data-view="manga"><i>▧</i><span><b>漫画を書く</b><small>4ページの物語を形に</small></span></button>
+          <button class="nav-btn" data-view="album"><i>♡</i><span><b>アルバム</b><small>作品と感情を大切に保存</small></span></button>
+        </nav>
+      </div>
+
+      <div class="side-panel feature-panel">
+        <h2>✦ v2で追加された機能 ✦</h2>
+        <ul>
+          <li>感情の矢印ライブラリ</li>
+          <li>カスタムガチャ</li>
+          <li>作品ステータス管理</li>
+          <li>感情コレクション</li>
+          <li>バックアップ機能</li>
+        </ul>
+      </div>
+
+      <div class="side-note">
+        <span aria-hidden="true">♧　✿　♡</span>
+        <p>あなたの中の小さな感情が、<br>素敵な物語になりますように。</p>
+      </div>
+    </aside>
+
+    <main class="main">
+      <nav class="journey" aria-label="画面ナビゲーション">
+        <button class="active" data-jump="home"><span>1</span>ホーム</button>
+        <button data-jump="seed"><span>2</span>種を作る</button>
+        <button data-jump="manga"><span>3</span>漫画を書く</button>
+        <button data-jump="album"><span>4</span>アルバム</button>
+      </nav>
+
+      <header class="app-topbar">
+        <button class="menu-mark" aria-label="メニュー">☰</button>
+        <h2 id="screenTitle">心の種帳</h2>
+        <span class="top-flower" aria-hidden="true">✿</span>
+      </header>
+
+      <section id="home" class="view active">
+        <div class="hero-card">
+          <p class="eyebrow">今日の種</p>
+          <h2 id="todaySeed">感情をひとつ、漫画の種にしよう</h2>
+          <div class="quick-actions">
+            <button class="primary" data-jump="seed">感情メモを追加</button>
+            <button class="secondary" data-jump="seed">ガチャを引く</button>
+            <button class="blue" data-jump="manga">漫画を書く</button>
+          </div>
+        </div>
+
+        <div class="dashboard-grid">
+          <section class="card">
+            <div class="card-head">
+              <h3>進行中の漫画</h3>
+              <button class="tiny" data-jump="manga">見る</button>
+            </div>
+            <div id="homeProgressList" class="mini-list"></div>
+          </section>
+
+          <section class="card">
+            <div class="card-head">
+              <h3>最近引いたガチャ</h3>
+              <button class="tiny" data-jump="seed">引く</button>
+            </div>
+            <div id="homeGachaList" class="mini-list"></div>
+          </section>
+
+          <section class="card">
+            <div class="card-head">
+              <h3>感情コレクション</h3>
+              <button class="tiny" data-jump="album">詳細</button>
+            </div>
+            <div id="homeEmotionStats" class="chip-cloud"></div>
+          </section>
+        </div>
+      </section>
+
+      <section id="seed" class="view">
+        <div class="view-title">
+          <h2>種を作る</h2>
+          <p>感情メモ・感情の矢印・ガチャで、短編漫画の核を作る場所。</p>
+        </div>
+
+        <div class="two-col">
+          <section class="card">
+            <div class="card-head">
+              <h3>感情メモ帳</h3>
+              <span id="emotionCount" class="badge">0</span>
+            </div>
+            <div class="input-line">
+              <textarea id="emotionInput" placeholder="例：好きだった時間まで嫌いになりたくない"></textarea>
+              <button id="addEmotionBtn" class="primary">保存</button>
+            </div>
+            <div class="filter-row">
+              <button id="showAllEmotionBtn" class="pill active">すべて</button>
+              <button id="showFavEmotionBtn" class="pill">お気に入り</button>
+            </div>
+            <div id="emotionList" class="list"></div>
+          </section>
+
+          <section class="card">
+            <div class="card-head">
+              <h3>感情の矢印ライブラリ</h3>
+              <span id="arrowCount" class="badge">0</span>
+            </div>
+            <div class="form-grid">
+              <input id="arrowHero" placeholder="主人公：優しい子" />
+              <input id="arrowTarget" placeholder="感情の相手：好きな人" />
+              <input id="arrowEmotion" placeholder="感情の矢印：許せない" />
+              <input id="arrowTalker" placeholder="会話相手：友達" />
+              <input id="arrowMemo" class="wide" placeholder="メモ：忘れたいのに、忘れられない。" />
+            </div>
+            <button id="addArrowBtn" class="primary">矢印を保存</button>
+            <div id="arrowList" class="list compact"></div>
+          </section>
+        </div>
+
+        <div class="two-col">
+          <section class="card gacha-card">
+            <div class="card-head">
+              <h3>感情の矢印ガチャ</h3>
+              <span class="badge">ころん♪</span>
+            </div>
+            <p class="hint">選んだ感情メモとカスタム項目から、漫画の種を作ります。</p>
+            <select id="gachaEmotionSelect"></select>
+            <button id="rollGachaBtn" class="big-gacha">種をころん♪</button>
+            <div id="gachaResult" class="result-card hidden"></div>
+          </section>
+
+          <section class="card">
+            <div class="card-head">
+              <h3>カスタムガチャ設定</h3>
+              <span class="badge">編集OK</span>
+            </div>
+            <div class="custom-tabs">
+              <button class="custom-tab active" data-category="heroes">主人公</button>
+              <button class="custom-tab" data-category="targets">感情の相手</button>
+              <button class="custom-tab" data-category="talkers">会話相手</button>
+              <button class="custom-tab" data-category="arrows">感情の矢印</button>
+              <button class="custom-tab" data-category="scenes">場面</button>
+              <button class="custom-tab" data-category="triggers">きっかけ</button>
+              <button class="custom-tab" data-category="aftertastes">読後感</button>
+            </div>
+            <div class="input-line small">
+              <input id="customInput" placeholder="選択肢を追加" />
+              <button id="addCustomBtn" class="secondary">追加</button>
+            </div>
+            <div id="customList" class="list compact"></div>
+          </section>
+        </div>
+
+        <section class="card">
+          <div class="card-head">
+            <h3>ガチャ履歴</h3>
+            <span id="historyCount" class="badge">0</span>
+          </div>
+          <div id="gachaHistoryList" class="history-grid"></div>
+        </section>
+      </section>
+
+      <section id="manga" class="view">
+        <div class="view-title">
+          <h2>漫画を書く</h2>
+          <p>4ページで完成させるための、短編漫画テンプレ。</p>
+        </div>
+
+        <section class="card">
+          <div class="manga-meta">
+            <input id="storyTitle" placeholder="作品タイトル" />
+            <input id="storyTheme" placeholder="感情テーマ" />
+            <input id="storyAftertaste" placeholder="読後感" />
+            <select id="storyStatus">
+              <option value="ネタ">ネタ</option>
+              <option value="ネーム">ネーム</option>
+              <option value="作画中">作画中</option>
+              <option value="完成">完成</option>
+            </select>
+          </div>
+
+          <div class="page-grid">
+            <article class="page-card pink">
+              <h3>1P：出来事が起きる</h3>
+              <textarea id="page1Scene" placeholder="場面・出来事メモ"></textarea>
+              <textarea id="page1Line" placeholder="セリフ・心の声"></textarea>
+              <textarea id="page1Draw" placeholder="描くもの・構図メモ"></textarea>
+            </article>
+            <article class="page-card blue">
+              <h3>2P：感情が揺れる</h3>
+              <textarea id="page2Scene" placeholder="場面・出来事メモ"></textarea>
+              <textarea id="page2Line" placeholder="セリフ・心の声"></textarea>
+              <textarea id="page2Draw" placeholder="描くもの・構図メモ"></textarea>
+            </article>
+            <article class="page-card purple">
+              <h3>3P：葛藤する</h3>
+              <textarea id="page3Scene" placeholder="場面・出来事メモ"></textarea>
+              <textarea id="page3Line" placeholder="セリフ・心の声"></textarea>
+              <textarea id="page3Draw" placeholder="描くもの・構図メモ"></textarea>
+            </article>
+            <article class="page-card mint">
+              <h3>4P：余韻で終わる</h3>
+              <textarea id="page4Scene" placeholder="場面・出来事メモ"></textarea>
+              <textarea id="page4Line" placeholder="セリフ・心の声"></textarea>
+              <textarea id="page4Draw" placeholder="描くもの・構図メモ"></textarea>
+            </article>
+          </div>
+
+          <div class="checklist">
+            <label><input type="checkbox" id="checkEmotion"> 感情は1つに絞れている</label>
+            <label><input type="checkbox" id="checkPages"> 4ページに収まっている</label>
+            <label><input type="checkbox" id="checkSpace"> 余白が残っている</label>
+            <label><input type="checkbox" id="checkFinish"> ちゃんと描き切れそう</label>
+          </div>
+
+          <textarea id="storyMemo" class="full-note" placeholder="メモ：気づいたこと、迷っていること、描きたい表情など"></textarea>
+
+          <div class="button-row">
+            <button id="saveStoryBtn" class="primary">作品メモを保存</button>
+            <button id="clearStoryBtn" class="secondary">テンプレを空にする</button>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="card-head">
+            <h3>作品ステータス管理</h3>
+            <span id="storyCount" class="badge">0</span>
+          </div>
+          <div id="storyKanban" class="kanban"></div>
+        </section>
+      </section>
+
+      <section id="album" class="view">
+        <div class="view-title">
+          <h2>アルバム</h2>
+          <p>完成作品、感情コレクション、バックアップをまとめて管理。</p>
+        </div>
+
+        <div class="two-col">
+          <section class="card">
+            <div class="card-head">
+              <h3>完成作品アルバム</h3>
+              <span id="completeCount" class="badge">0</span>
+            </div>
+            <div id="completeList" class="list"></div>
+          </section>
+
+          <section class="card">
+            <div class="card-head">
+              <h3>感情コレクション</h3>
+              <span class="badge">よく描く感情</span>
+            </div>
+            <div id="emotionCollection" class="collection"></div>
+          </section>
+        </div>
+
+        <section class="card">
+          <div class="card-head">
+            <h3>バックアップ</h3>
+            <span class="badge">安心</span>
+          </div>
+          <p class="hint">データはブラウザに保存されます。大切なメモはJSONで書き出して、iCloudなどにも保存してね。</p>
+          <div class="button-row">
+            <button id="exportBtn" class="blue">JSONファイルを書き出す</button>
+            <label class="import-label">
+              JSONファイルを読み込む
+              <input id="importInput" type="file" accept="application/json">
+            </label>
+          </div>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <nav class="bottom-nav">
+    <button class="bottom-btn active" data-view="home"><i>⌂</i><span>ホーム</span></button>
+    <button class="bottom-btn" data-view="seed"><i>♧</i><span>種を作る</span></button>
+    <button class="bottom-btn" data-view="manga"><i>▧</i><span>漫画を書く</span></button>
+    <button class="bottom-btn" data-view="album"><i>♡</i><span>アルバム</span></button>
+  </nav>
+
+  <script src="script.js?v=3"></script>
+</body>
+</html>
